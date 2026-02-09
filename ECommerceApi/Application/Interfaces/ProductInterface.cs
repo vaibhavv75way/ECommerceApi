@@ -10,4 +10,6 @@ public interface IProductService
     Task<ProductResponseDto> GetSingleProduct(Guid id);
     Task<ProductResponseDto> UpdateProduct(Guid id, UpdateProductDto dto);
     Task DeleteProduct(Guid id);
+    
+    Task<int> ImportProductsFromExcelAsync(IFormFile file);
 }

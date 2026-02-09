@@ -2,8 +2,12 @@ using EcommerceApi.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApi.Application.Interfaces;
 using EcommerceApi.Application.Services;
+using ECommerceApi.Infrastructure.Middlewares;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ExcelPackage.License.SetNonCommercialPersonal("Joe Doe");
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -35,6 +39,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.MapControllers();
 
 app.Run();

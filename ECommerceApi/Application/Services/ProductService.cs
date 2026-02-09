@@ -4,6 +4,7 @@ using EcommerceApi.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using EcommerceApi.Application.DTO;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 namespace EcommerceApi.Application.Services;
 
@@ -147,5 +148,39 @@ public class ProductService : IProductService
         
         product.IsAvailable = false;
         await _context.SaveChangesAsync();
+    }
+    
+    public async Task<int> ImportProductsFromExcelAsync(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            throw new ArgumentException("Excel file is required");
+
+        var products = new List<Product>();
+
+        using var stream = new MemoryStream();
+        await file.CopyToAsync(stream);
+
+        var package = new ExcelPackage(stream);
+        var worksheet = package.Workbook.Worksheets[0];
+        var rowCount = worksheet.Dimension.Rows;
+
+        for (int row = 2; row <= rowCount; row++)
+        {
+            var product = new Product
+            {
+                Name = worksheet.Cells[row, 1].Text,
+                Description = worksheet.Cells[row, 2].Text,
+                Price = decimal.Parse(worksheet.Cells[row, 3].Text),
+                Category = worksheet.Cells[row, 4].Text,
+                Stock = int.Parse(worksheet.Cells[row, 5].Text)
+            };
+
+            products.Add(product);
+        }
+
+        _context.Products.AddRange(products);
+        await _context.SaveChangesAsync();
+
+        return products.Count;
     }
 }

@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using EcommerceApi.Application.Interfaces;
 
 namespace EcommerceApi.Controllers;
+
 [ApiController]
 [Route("api/products")]
 public class ProductController : ControllerBase
 {
-    
     private readonly IProductService _productService;
 
     public ProductController(IProductService productService)
@@ -18,72 +18,48 @@ public class ProductController : ControllerBase
     [HttpGet("Id:Guid")]
     public async Task<IActionResult> GetSingleProduct(Guid id)
     {
-        try
-        {
-            var product = await _productService.GetSingleProduct(id);
-            return Ok(product);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        var product = await _productService.GetSingleProduct(id);
+        return Ok(product);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> CreateProduct(
         [FromBody] CreateProductDto data)
     {
-        try
-        {
-            var createdProduct = await _productService.CreateProduct(data);
-            return Ok(createdProduct);
-        }
-        catch (Exception e)
-        {
-            return  BadRequest(e.Message);
-        }
-        
+        var createdProduct = await _productService.CreateProduct(data);
+        return Ok(createdProduct);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetProducts([FromQuery] ProductRequestDto query)
     {
-        try
-        {
-            var result = await _productService.GetAllProduct(query);
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        var result = await _productService.GetAllProduct(query);
+        return Ok(result);
     }
 
     [HttpPut("{id:Guid}")]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductDto data)
     {
-        try
-        {
-            var updatedProduct = await _productService.UpdateProduct(id, data);
-            return Ok(updatedProduct);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        var updatedProduct = await _productService.UpdateProduct(id, data);
+        return Ok(updatedProduct);
     }
 
     [HttpDelete("{id:Guid}")]
     public async Task<IActionResult> DeleteProduct(Guid id)
     {
-        try
+        await _productService.DeleteProduct(id);
+        return Ok();
+    }
+
+    [HttpPost("upload-excel")]
+    public async Task<IActionResult> UploadExcel(IFormFile file)
+    {
+        var count = await _productService.ImportProductsFromExcelAsync(file);
+
+        return Ok(new
         {
-            await _productService.DeleteProduct(id);
-            return Ok();
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+            Message = "Excel data imported successfully",
+            Count = count
+        });
     }
 }
