@@ -22,6 +22,11 @@ public class ProductService : IProductService
     [HttpPost]
     public async Task<ProductResponseDto> CreateProduct(CreateProductDto data)
     {
+        if (data == null)
+        {
+            throw new ArgumentException("Fields are required");
+        }
+        
         var product = new Product
         {
             Name = data.Name,
@@ -66,6 +71,7 @@ public class ProductService : IProductService
         };
     }
     
+    [HttpGet]
     public async Task<GetAllProductResponseDto> GetAllProduct(ProductRequestDto query)
     {
         var pageNumber = query.PageNumber <= 0 ? 1 : query.PageNumber;
@@ -150,6 +156,7 @@ public class ProductService : IProductService
         await _context.SaveChangesAsync();
     }
     
+    [HttpPost]
     public async Task<int> ImportProductsFromExcelAsync(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -157,7 +164,7 @@ public class ProductService : IProductService
 
         var products = new List<Product>();
 
-        using var stream = new MemoryStream();
+        var stream = new MemoryStream();
         await file.CopyToAsync(stream);
 
         var package = new ExcelPackage(stream);

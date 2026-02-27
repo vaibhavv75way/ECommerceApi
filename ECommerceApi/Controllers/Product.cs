@@ -15,7 +15,7 @@ public class ProductController : ControllerBase
         _productService = productService;
     }
 
-    [HttpGet("Id:Guid")]
+    [HttpGet("id:Guid")]
     public async Task<IActionResult> GetSingleProduct(Guid id)
     {
         var product = await _productService.GetSingleProduct(id);
